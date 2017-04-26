@@ -32,8 +32,8 @@ autocmd vimrc ColorScheme * :hi Visual guibg=#00588A
 autocmd vimrc ColorScheme * :hi link multiple_cursors_cursor Search
 autocmd vimrc ColorScheme * :hi link multiple_cursors_visual Visual
 
-let g:molokai_italic=0
-colorscheme molokai
+syntax on
+color dracula
 set background=dark
 
 " Visual settings
@@ -239,10 +239,6 @@ let g:signify_vcs_list = ['git', 'hg', 'svn']
 let g:vimpipe_invoke_map = '<Leader>r'
 let g:vimpipe_close_map = '<Leader>p'
 
-" DBExt
-let g:dbext_default_profile_PG_skillsbot = 'type=pgsql:host=rds.bocoup.com:dbname=skillsbot-dev:user=skillsbot-dev'
-let g:dbext_default_profile = 'PG_skillsbot'
-
 " Indent Guides
 let g:indent_guides_start_level = 2
 let g:indent_guides_guide_size = 1
@@ -282,7 +278,6 @@ Plug 'chase/vim-ansible-yaml'
 Plug 'wavded/vim-stylus'
 Plug 'klen/python-mode', {'for': 'python'}
 Plug 'terryma/vim-multiple-cursors'
-Plug 'wting/rust.vim', {'for': 'rust'}
 Plug 'vim-scripts/dbext.vim'
 Plug 'krisajenkins/vim-pipe'
 Plug 'krisajenkins/vim-postgresql-syntax'

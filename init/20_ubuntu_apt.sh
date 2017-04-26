@@ -32,27 +32,27 @@ apt_packages+=(
   curl
   git-core
   groff
-  hollywood
   htop
   id3tool
   imagemagick
   jq
-  mercurial
   nmap
-  postgresql
   silversearcher-ag
   sl
+  steam
   telnet
   tree
+  mysql-server
+  libmysqlclient-dev
 )
 
 apt_packages+=(vim)
 is_ubuntu_desktop && apt_packages+=(vim-gnome)
 
-# https://launchpad.net/~stebbins/+archive/ubuntu/handbrake-releases
-add_ppa ppa:stebbins/handbrake-releases
-apt_packages+=(handbrake-cli)
-is_ubuntu_desktop && apt_packages+=(handbrake-gtk)
+## https://launchpad.net/~stebbins/+archive/ubuntu/handbrake-releases
+#add_ppa ppa:stebbins/handbrake-releases
+#apt_packages+=(handbrake-cli)
+#is_ubuntu_desktop && apt_packages+=(handbrake-gtk)
 
 # https://github.com/rbenv/ruby-build/wiki
 apt_packages+=(
@@ -72,18 +72,6 @@ if is_ubuntu_desktop; then
   apt_source_files+=(google-chrome)
   apt_source_texts+=("deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main")
   apt_packages+=(google-chrome-stable)
-
-  # https://www.charlesproxy.com/documentation/installation/apt-repository/
-  apt_keys+=(https://www.charlesproxy.com/packages/apt/PublicKey)
-  apt_source_files+=(charles)
-  apt_source_texts+=("deb https://www.charlesproxy.com/packages/apt/ charles-proxy3 main")
-  apt_packages+=(charles-proxy)
-
-  # https://github.com/aluxian/Messenger-for-Desktop#linux
-  apt_keys+=('--keyserver pool.sks-keyservers.net --recv 6DDA23616E3FE905FFDA152AE61DA9241537994D')
-  apt_source_files+=(aluxian)
-  apt_source_texts+=("deb https://dl.bintray.com/aluxian/deb/ beta main")
-  apt_packages+=(messengerfordesktop)
 
   # https://www.spotify.com/us/download/linux/
   apt_keys+=('--keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886')
@@ -117,10 +105,7 @@ if is_ubuntu_desktop; then
   # Misc
   apt_packages+=(adb fastboot)
   apt_packages+=(
-    chromium-browser
-    fonts-mplus
     k4dirstat
-    rofi
     openssh-server
     shutter
     transgui
@@ -134,16 +119,12 @@ if is_ubuntu_desktop; then
 
   # https://github.com/mitchellh/vagrant/issues/7411
   deb_installed+=(/usr/bin/vagrant)
-  deb_sources+=(https://releases.hashicorp.com/vagrant/1.9.2/vagrant_1.9.2_x86_64.deb)
+  deb_sources+=(https://releases.hashicorp.com/vagrant/1.9.4/vagrant_1.9.4_x86_64.deb)
   # https://github.com/vagrant-libvirt/vagrant-libvirt/issues/575
   # apt_packages+=(vagrant)
   # function postinstall_vagrant() {
   #   sudo sed -i'' "s/Specification.all = nil/Specification.reset/" /usr/lib/ruby/vendor_ruby/vagrant/bundler.rb
   # }
-
-  # https://support.gitkraken.com/how-to-install
-  deb_installed+=(/usr/bin/gitkraken)
-  deb_sources+=(https://release.gitkraken.com/linux/gitkraken-amd64.deb)
 
   # https://www.dropbox.com/install-linux
   apt_packages+=(python-gtk2 python-gpgme)
@@ -167,15 +148,15 @@ if is_ubuntu_desktop; then
   }
 
   # http://askubuntu.com/questions/854480/how-to-install-the-steam-client/854481#854481
-  apt_packages+=(python-apt)
-  deb_installed+=(/usr/bin/steam)
-  deb_sources+=(deb_source_steam)
-  function deb_source_steam() {
-    local steam_root steam_file
-    steam_root=http://repo.steampowered.com/steam/pool/steam/s/steam/
-    steam_file="$(wget -q -O- "$steam_root?C=M;O=D" | sed -En '/steam-launcher/{s/.*href="([^"]+)".*/\1/;p;q;}')"
-    echo "$steam_root$steam_file"
-  }
+#  apt_packages+=(python-apt)
+#  deb_installed+=(/usr/bin/steam)
+#  deb_sources+=(deb_source_steam)
+#  function deb_source_steam() {
+#    local steam_root steam_file
+#    steam_root=http://repo.steampowered.com/steam/pool/steam/s/steam/
+#    steam_file="$(wget -q -O- "$steam_root?C=M;O=D" | sed -En '/steam-launcher/{s/.*href="([^"]+)".*/\1/;p;q;}')"
+#    echo "$steam_root$steam_file"
+#  }
   # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=772598
   # apt_packages+=(steam)
   # function preinstall_steam() {
