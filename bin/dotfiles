@@ -8,11 +8,11 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then cat <<HELP
 Usage: $(basename "$0")
 
 See the README for documentation.
-https://github.com/cowboy/dotfiles
+https://github.com/davestephens/dotfiles
 
-Copyright (c) 2014 "Cowboy" Ben Alman
+Copyright (c) 2017 David Stephens
 Licensed under the MIT license.
-http://benalman.com/about/license/
+
 HELP
 exit; fi
 
@@ -320,11 +320,11 @@ while true; do sudo -n true; sleep 10; kill -0 "$$" || exit; done 2>/dev/null &
 
 # Install a custom sudoers file that allows "sudo apt-get" to be executed
 # without asking for a password.
-sudoers_file=/etc/sudoers.d/cowboy-dotfiles
+sudoers_file=/etc/sudoers.d/davestephens-dotfiles
 # Contents of the sudoers file.
 function sudoers_text() {
   cat <<EOF
-# This file was created by cowboy's dotfiles script on $(date -I)
+# This file was created by davestephens's dotfiles script on $(date -I)
 # (which will never update it, only recreate it if it's missing)
 # Sudoers reference: http://ubuntuforums.org/showthread.php?t=1132821
 
@@ -369,12 +369,6 @@ EOF
   else
     echo "Skipping."
   fi
-fi
-
-# Ensure that we can actually, like, compile anything.
-if [[ ! "$(type -P gcc)" ]] && is_osx; then
-  e_error "XCode or the Command Line Tools for XCode must be installed first."
-  exit 1
 fi
 
 # If Git is not installed, install it (Ubuntu only, since Git comes standard
