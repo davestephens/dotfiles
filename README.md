@@ -69,7 +69,7 @@ Why? Because I often completely break this repo while updating. Which means that
 #### Ubuntu
 
 ```sh
-bash -c "$(wget -qO- https://bit.ly/cowboy-dotfiles)" && source ~/.bashrc
+bash -c "$(wget -qO- https://raw.githubusercontent.com/davestephens/dotfiles/master/bin/dotfiles)" && source ~/.bashrc
 ```
 
 ## Aliases and Functions
