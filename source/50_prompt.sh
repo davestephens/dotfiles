@@ -1,150 +1,271 @@
-# My awesome bash prompt
-#
-# Copyright (c) 2012 "Cowboy" Ben Alman
-# Licensed under the MIT license.
-# http://benalman.com/about/license/
-#
-# Example:
-# [master:!?][cowboy@CowBook:~/.dotfiles]
-# [11:14:45] $
-#
-# Read more (and see a screenshot) in the "Prompt" section of
-# https://github.com/cowboy/dotfiles
+#!/usr/bin/env bash
+# Sexy bash prompt by twolfson
+# https://github.com/twolfson/sexy-bash-prompt
+# Forked from gf3, https://gist.github.com/gf3/306785
 
-# ANSI CODES - SEPARATE MULTIPLE VALUES WITH ;
-#
-#  0  reset          4  underline
-#  1  bold           7  inverse
-#
-# FG  BG  COLOR     FG  BG  COLOR
-# 30  40  black     34  44  blue
-# 31  41  red       35  45  magenta
-# 32  42  green     36  46  cyan
-# 33  43  yellow    37  47  white
+# If we are on a colored terminal
+if tput setaf 1 &> /dev/null; then
+  # Reset the shell from our `if` check
+  tput sgr0 &> /dev/null
 
-if [[ ! "${__prompt_colors[@]}" ]]; then
-  __prompt_colors=(
-    "36" # information color
-    "37" # bracket color
-    "31" # error color
-  )
+  # If you would like to customize your colors, use
+  # # Attribution: http://linuxtidbits.wordpress.com/2008/08/11/output-color-on-bash-scripts/
+  # for i in $(seq 0 $(tput colors)); do
+  #   echo " $(tput setaf $i)Text$(tput sgr0) $(tput bold)$(tput setaf $i)Text$(tput sgr0) $(tput sgr 0 1)$(tput setaf $i)Text$(tput sgr0)  \$(tput setaf $i)"
+  # done
 
-  if [[ "$SSH_TTY" ]]; then
-    # connected via ssh
-    __prompt_colors[0]="32"
-  elif [[ "$USER" == "root" ]]; then
-    # logged in as root
-    __prompt_colors[0]="35"
+  # Save common color actions
+  sexy_bash_prompt_bold="$(tput bold)"
+  sexy_bash_prompt_reset="$(tput sgr0)"
+
+  # If the terminal supports at least 256 colors, write out our 256 color based set
+  if [[ "$(tput colors)" -ge 256 ]] &> /dev/null; then
+    sexy_bash_prompt_user_color="$sexy_bash_prompt_bold$(tput setaf 27)" # BOLD BLUE
+    sexy_bash_prompt_preposition_color="$sexy_bash_prompt_bold$(tput setaf 7)" # BOLD WHITE
+    sexy_bash_prompt_device_color="$sexy_bash_prompt_bold$(tput setaf 39)" # BOLD CYAN
+    sexy_bash_prompt_dir_color="$sexy_bash_prompt_bold$(tput setaf 76)" # BOLD GREEN
+    sexy_bash_prompt_git_status_color="$sexy_bash_prompt_bold$(tput setaf 154)" # BOLD YELLOW
+    sexy_bash_prompt_git_progress_color="$sexy_bash_prompt_bold$(tput setaf 9)" # BOLD RED
+  else
+  # Otherwise, use colors from our set of 8
+    sexy_bash_prompt_user_color="$sexy_bash_prompt_bold$(tput setaf 4)" # BOLD BLUE
+    sexy_bash_prompt_preposition_color="$sexy_bash_prompt_bold$(tput setaf 7)" # BOLD WHITE
+    sexy_bash_prompt_device_color="$sexy_bash_prompt_bold$(tput setaf 6)" # BOLD CYAN
+    sexy_bash_prompt_dir_color="$sexy_bash_prompt_bold$(tput setaf 2)" # BOLD GREEN
+    sexy_bash_prompt_git_status_color="$sexy_bash_prompt_bold$(tput setaf 3)" # BOLD YELLOW
+    sexy_bash_prompt_git_progress_color="$sexy_bash_prompt_bold$(tput setaf 1)" # BOLD RED
   fi
+
+  sexy_bash_prompt_symbol_color="$sexy_bash_prompt_bold" # BOLD
+
+else
+# Otherwise, use ANSI escape sequences for coloring
+  # If you would like to customize your colors, use
+  # DEV: 30-39 lines up 0-9 from `tput`
+  # for i in $(seq 0 109); do
+  #   echo -n -e "\033[1;${i}mText$(tput sgr0) "
+  #   echo "\033[1;${i}m"
+  # done
+
+  sexy_bash_prompt_reset="\033[m"
+  sexy_bash_prompt_user_color="\033[1;34m" # BLUE
+  sexy_bash_prompt_preposition_color="\033[1;37m" # WHITE
+  sexy_bash_prompt_device_color="\033[1;36m" # CYAN
+  sexy_bash_prompt_dir_color="\033[1;32m" # GREEN
+  sexy_bash_prompt_git_status_color="\033[1;33m" # YELLOW
+  sexy_bash_prompt_git_progress_color="\033[1;31m" # RED
+  sexy_bash_prompt_symbol_color="" # NORMAL
 fi
 
-# Inside a prompt function, run this alias to setup local $c0-$c9 color vars.
-alias __prompt_get_colors='__prompt_colors[9]=; local i; for i in ${!__prompt_colors[@]}; do local c$i="\[\e[0;${__prompt_colors[$i]}m\]"; done'
+# Define the default prompt terminator character '$'
+if [[ "$UID" == 0 ]]; then
+  sexy_bash_prompt_symbol="#"
+else
+  sexy_bash_prompt_symbol="\$"
+fi
 
-# Exit code of previous command.
-function __prompt_exit_code() {
-  __prompt_get_colors
-  [[ $1 != 0 ]] && echo " $c2$1$c9"
-}
+# Apply any color overrides that have been set in the environment
+if [[ -n "$PROMPT_USER_COLOR" ]]; then sexy_bash_prompt_user_color="$PROMPT_USER_COLOR"; fi
+if [[ -n "$PROMPT_PREPOSITION_COLOR" ]]; then sexy_bash_prompt_preposition_color="$PROMPT_PREPOSITION_COLOR"; fi
+if [[ -n "$PROMPT_DEVICE_COLOR" ]]; then sexy_bash_prompt_device_color="$PROMPT_DEVICE_COLOR"; fi
+if [[ -n "$PROMPT_DIR_COLOR" ]]; then sexy_bash_prompt_dir_color="$PROMPT_DIR_COLOR"; fi
+if [[ -n "$PROMPT_GIT_STATUS_COLOR" ]]; then sexy_bash_prompt_git_status_color="$PROMPT_GIT_STATUS_COLOR"; fi
+if [[ -n "$PROMPT_GIT_PROGRESS_COLOR" ]]; then sexy_bash_prompt_git_progress_color="$PROMPT_GIT_PROGRESS_COLOR"; fi
+if [[ -n "$PROMPT_SYMBOL" ]]; then sexy_bash_prompt_symbol="$PROMPT_SYMBOL"; fi
+if [[ -n "$PROMPT_SYMBOL_COLOR" ]]; then sexy_bash_prompt_symbol_color="$PROMPT_SYMBOL_COLOR"; fi
 
-# Git status.
-function __prompt_git() {
-  __prompt_get_colors
-  local status branch flags
-  status="$(git status 2>/dev/null)"
-  [[ $? != 0 ]] && return 1;
-  branch="$(echo "$status" | awk '/# Initial commit/ {print "(init)"}')"
-  [[ "$branch" ]] || branch="$(echo "$status" | awk '/# On branch/ {print $4}')"
-  [[ "$branch" ]] || branch="$(git branch | perl -ne '/^\* \(detached from (.*)\)$/ ? print "($1)" : /^\* (.*)/ && print $1')"
-  flags="$(
-    echo "$status" | awk 'BEGIN {r=""} \
-        /^(# )?Changes to be committed:$/        {r=r "+"}\
-        /^(# )?Changes not staged for commit:$/  {r=r "!"}\
-        /^(# )?Untracked files:$/                {r=r "?"}\
-      END {print r}'
-  )"
-  __prompt_vcs_info=("$branch" "$flags")
-}
+# Set up symbols
+sexy_bash_prompt_synced_symbol=""
+sexy_bash_prompt_dirty_synced_symbol="*"
+sexy_bash_prompt_unpushed_symbol="△"
+sexy_bash_prompt_dirty_unpushed_symbol="▲"
+sexy_bash_prompt_unpulled_symbol="▽"
+sexy_bash_prompt_dirty_unpulled_symbol="▼"
+sexy_bash_prompt_unpushed_unpulled_symbol="⬡"
+sexy_bash_prompt_dirty_unpushed_unpulled_symbol="⬢"
 
-# hg status.
-function __prompt_hg() {
-  __prompt_get_colors
-  local summary branch bookmark flags
-  summary="$(hg summary 2>/dev/null)"
-  [[ $? != 0 ]] && return 1;
-  branch="$(echo "$summary" | awk '/branch:/ {print $2}')"
-  bookmark="$(echo "$summary" | awk '/bookmarks:/ {print $2}')"
-  flags="$(
-    echo "$summary" | awk 'BEGIN {r="";a=""} \
-      /(modified)/     {r= "+"}\
-      /(unknown)/      {a= "?"}\
-      END {print r a}'
-  )"
-  __prompt_vcs_info=("$branch" "$bookmark" "$flags")
-}
+# Apply symbol overrides that have been set in the environment
+# DEV: Working unicode symbols can be determined via the following gist
+#   **WARNING: The following gist has 64k lines and may freeze your browser**
+#   https://gist.github.com/twolfson/9cc7968eb6ee8b9ad877
+if [[ -n "$PROMPT_SYNCED_SYMBOL" ]]; then sexy_bash_prompt_synced_symbol="$PROMPT_SYNCED_SYMBOL"; fi
+if [[ -n "$PROMPT_DIRTY_SYNCED_SYMBOL" ]]; then sexy_bash_prompt_dirty_synced_symbol="$PROMPT_DIRTY_SYNCED_SYMBOL"; fi
+if [[ -n "$PROMPT_UNPUSHED_SYMBOL" ]]; then sexy_bash_prompt_unpushed_symbol="$PROMPT_UNPUSHED_SYMBOL"; fi
+if [[ -n "$PROMPT_DIRTY_UNPUSHED_SYMBOL" ]]; then sexy_bash_prompt_dirty_unpushed_symbol="$PROMPT_DIRTY_UNPUSHED_SYMBOL"; fi
+if [[ -n "$PROMPT_UNPULLED_SYMBOL" ]]; then sexy_bash_prompt_unpulled_symbol="$PROMPT_UNPULLED_SYMBOL"; fi
+if [[ -n "$PROMPT_DIRTY_UNPULLED_SYMBOL" ]]; then sexy_bash_prompt_dirty_unpulled_symbol="$PROMPT_DIRTY_UNPULLED_SYMBOL"; fi
+if [[ -n "$PROMPT_UNPUSHED_UNPULLED_SYMBOL" ]]; then sexy_bash_prompt_unpushed_unpulled_symbol="$PROMPT_UNPUSHED_UNPULLED_SYMBOL"; fi
+if [[ -n "$PROMPT_DIRTY_UNPUSHED_UNPULLED_SYMBOL" ]]; then sexy_bash_prompt_dirty_unpushed_unpulled_symbol="$PROMPT_DIRTY_UNPUSHED_UNPULLED_SYMBOL"; fi
 
-# SVN info.
-function __prompt_svn() {
-  __prompt_get_colors
-  local info last current
-  info="$(svn info . 2> /dev/null)"
-  [[ ! "$info" ]] && return 1
-  last="$(echo "$info" | awk '/Last Changed Rev:/ {print $4}')"
-  current="$(echo "$info" | awk '/Revision:/ {print $2}')"
-  __prompt_vcs_info=("$last" "$current")
-}
-
-# Maintain a per-execution call stack.
-__prompt_stack=()
-trap '__prompt_stack=("${__prompt_stack[@]}" "$BASH_COMMAND")' DEBUG
-
-function __prompt_command() {
-  local i exit_code=$?
-  # If the first command in the stack is __prompt_command, no command was run.
-  # Set exit_code to 0 and reset the stack.
-  [[ "${__prompt_stack[0]}" == "__prompt_command" ]] && exit_code=0
-  __prompt_stack=()
-
-  # Manually load z here, after $? is checked, to keep $? from being clobbered.
-  [[ "$(type -t _z)" ]] && _z --add "$(pwd -P 2>/dev/null)" 2>/dev/null
-
-  # While the simple_prompt environment var is set, disable the awesome prompt.
-  [[ "$simple_prompt" ]] && PS1='\n$ ' && return
-
-  __prompt_get_colors
-  # http://twitter.com/cowboy/status/150254030654939137
-  PS1="\n"
-  __prompt_vcs_info=()
-  # git: [branch:flags]
-  __prompt_git || \
-  # hg:  [branch:bookmark:flags]
-  __prompt_hg || \
-  # svn: [repo:lastchanged]
-  __prompt_svn
-  # Iterate over all vcs info parts, outputting an escaped var name that will
-  # be interpolated automatically. This ensures that malicious branch names
-  # can't execute arbitrary commands. For more info, see this PR:
-  # https://github.com/cowboy/dotfiles/pull/68
-  if [[ "${#__prompt_vcs_info[@]}" != 0 ]]; then
-    PS1="$PS1$c1[$c0"
-    for i in "${!__prompt_vcs_info[@]}"; do
-      if [[ "${__prompt_vcs_info[i]}" ]]; then
-        [[ $i != 0 ]] && PS1="$PS1$c1:$c0"
-        PS1="$PS1\${__prompt_vcs_info[$i]}"
-      fi
-    done
-    PS1="$PS1$c1]$c9"
+function sexy_bash_prompt_get_git_branch() {
+  # On branches, this will return the branch name
+  # On non-branches, (no branch)
+  ref="$(git symbolic-ref HEAD 2> /dev/null | sed -e 's/refs\/heads\///')"
+  if [[ "$ref" != "" ]]; then
+    echo "$ref"
+  else
+    echo "(no branch)"
   fi
-  # misc: [cmd#:hist#]
-  # PS1="$PS1$c1[$c0#\#$c1:$c0!\!$c1]$c9"
-  # path: [user@host:path]
-  PS1="$PS1$c1[$c0\u$c1@$c0\h$c1:$c0\w$c1]$c9"
-  PS1="$PS1\n"
-  # date: [HH:MM:SS]
-  PS1="$PS1$c1[$c0$(date +"%H$c1:$c0%M$c1:$c0%S")$c1]$c9"
-  # exit code: 127
-  PS1="$PS1$(__prompt_exit_code "$exit_code")"
-  PS1="$PS1 \$ "
 }
 
-PROMPT_COMMAND="__prompt_command"
+function sexy_bash_prompt_get_git_progress() {
+  # Detect in-progress actions (e.g. merge, rebase)
+  # https://github.com/git/git/blob/v1.9-rc2/wt-status.c#L1199-L1241
+  git_dir="$(git rev-parse --git-dir)"
+
+  # git merge
+  if [[ -f "$git_dir/MERGE_HEAD" ]]; then
+    echo " [merge]"
+  elif [[ -d "$git_dir/rebase-apply" ]]; then
+    # git am
+    if [[ -f "$git_dir/rebase-apply/applying" ]]; then
+      echo " [am]"
+    # git rebase
+    else
+      echo " [rebase]"
+    fi
+  elif [[ -d "$git_dir/rebase-merge" ]]; then
+    # git rebase --interactive/--merge
+    echo " [rebase]"
+  elif [[ -f "$git_dir/CHERRY_PICK_HEAD" ]]; then
+    # git cherry-pick
+    echo " [cherry-pick]"
+  fi
+  if [[ -f "$git_dir/BISECT_LOG" ]]; then
+    # git bisect
+    echo " [bisect]"
+  fi
+  if [[ -f "$git_dir/REVERT_HEAD" ]]; then
+    # git revert --no-commit
+    echo " [revert]"
+  fi
+}
+
+sexy_bash_prompt_is_branch1_behind_branch2 () {
+  # $ git log origin/master..master -1
+  # commit 4a633f715caf26f6e9495198f89bba20f3402a32
+  # Author: Todd Wolfson <todd@twolfson.com>
+  # Date:   Sun Jul 7 22:12:17 2013 -0700
+  #
+  #     Unsynced commit
+
+  # Find the first log (if any) that is in branch1 but not branch2
+  first_log="$(git log $1..$2 -1 2> /dev/null)"
+
+  # Exit with 0 if there is a first log, 1 if there is not
+  [[ -n "$first_log" ]]
+}
+
+sexy_bash_prompt_branch_exists () {
+  # List remote branches           | # Find our branch and exit with 0 or 1 if found/not found
+  git branch --remote 2> /dev/null | grep --quiet "$1"
+}
+
+sexy_bash_prompt_parse_git_ahead () {
+  # Grab the local and remote branch
+  branch="$(sexy_bash_prompt_get_git_branch)"
+  remote="$(git config --get "branch.${branch}.remote" || echo -n "origin")"
+  remote_branch="$remote/$branch"
+
+  # $ git log origin/master..master
+  # commit 4a633f715caf26f6e9495198f89bba20f3402a32
+  # Author: Todd Wolfson <todd@twolfson.com>
+  # Date:   Sun Jul 7 22:12:17 2013 -0700
+  #
+  #     Unsynced commit
+
+  # If the remote branch is behind the local branch
+  # or it has not been merged into origin (remote branch doesn't exist)
+  if (sexy_bash_prompt_is_branch1_behind_branch2 "$remote_branch" "$branch" ||
+      ! sexy_bash_prompt_branch_exists "$remote_branch"); then
+    # echo our character
+    echo 1
+  fi
+}
+
+sexy_bash_prompt_parse_git_behind () {
+  # Grab the branch
+  branch="$(sexy_bash_prompt_get_git_branch)"
+  remote="$(git config --get "branch.${branch}.remote" || echo -n "origin")"
+  remote_branch="$remote/$branch"
+
+  # $ git log master..origin/master
+  # commit 4a633f715caf26f6e9495198f89bba20f3402a32
+  # Author: Todd Wolfson <todd@twolfson.com>
+  # Date:   Sun Jul 7 22:12:17 2013 -0700
+  #
+  #     Unsynced commit
+
+  # If the local branch is behind the remote branch
+  if sexy_bash_prompt_is_branch1_behind_branch2 "$branch" "$remote_branch"; then
+    # echo our character
+    echo 1
+  fi
+}
+
+function sexy_bash_prompt_parse_git_dirty() {
+  # If the git status has *any* changes (e.g. dirty), echo our character
+  if [[ -n "$(git status --porcelain 2> /dev/null)" ]]; then
+    echo 1
+  fi
+}
+
+function sexy_bash_prompt_is_on_git() {
+  git rev-parse 2> /dev/null
+}
+
+function sexy_bash_prompt_get_git_status() {
+  # Grab the git dirty and git behind
+  dirty_branch="$(sexy_bash_prompt_parse_git_dirty)"
+  branch_ahead="$(sexy_bash_prompt_parse_git_ahead)"
+  branch_behind="$(sexy_bash_prompt_parse_git_behind)"
+
+  # Iterate through all the cases and if it matches, then echo
+  if [[ "$dirty_branch" == 1 && "$branch_ahead" == 1 && "$branch_behind" == 1 ]]; then
+    echo "$sexy_bash_prompt_dirty_unpushed_unpulled_symbol"
+  elif [[ "$branch_ahead" == 1 && "$branch_behind" == 1 ]]; then
+    echo "$sexy_bash_prompt_unpushed_unpulled_symbol"
+  elif [[ "$dirty_branch" == 1 && "$branch_ahead" == 1 ]]; then
+    echo "$sexy_bash_prompt_dirty_unpushed_symbol"
+  elif [[ "$branch_ahead" == 1 ]]; then
+    echo "$sexy_bash_prompt_unpushed_symbol"
+  elif [[ "$dirty_branch" == 1 && "$branch_behind" == 1 ]]; then
+    echo "$sexy_bash_prompt_dirty_unpulled_symbol"
+  elif [[ "$branch_behind" == 1 ]]; then
+    echo "$sexy_bash_prompt_unpulled_symbol"
+  elif [[ "$dirty_branch" == 1 ]]; then
+    echo "$sexy_bash_prompt_dirty_synced_symbol"
+  else # clean
+    echo "$sexy_bash_prompt_synced_symbol"
+  fi
+}
+
+sexy_bash_prompt_get_git_info () {
+  # Grab the branch
+  branch="$(sexy_bash_prompt_get_git_branch)"
+
+  # If there are any branches
+  if [[ "$branch" != "" ]]; then
+    # Echo the branch
+    output="$branch"
+
+    # Add on the git status
+    output="$output$(sexy_bash_prompt_get_git_status)"
+
+    # Echo our output
+    echo "$output"
+  fi
+}
+
+# Define the sexy-bash-prompt
+PS1="\[$sexy_bash_prompt_user_color\]\u\[$sexy_bash_prompt_reset\] \
+\[$sexy_bash_prompt_preposition_color\]at\[$sexy_bash_prompt_reset\] \
+\[$sexy_bash_prompt_device_color\]\h\[$sexy_bash_prompt_reset\] \
+\[$sexy_bash_prompt_preposition_color\]in\[$sexy_bash_prompt_reset\] \
+\[$sexy_bash_prompt_dir_color\]\w\[$sexy_bash_prompt_reset\]\
+\$( sexy_bash_prompt_is_on_git && \
+  echo -n \" \[$sexy_bash_prompt_preposition_color\]on\[$sexy_bash_prompt_reset\] \" && \
+  echo -n \"\[$sexy_bash_prompt_git_status_color\]\$(sexy_bash_prompt_get_git_info)\" && \
+  echo -n \"\[$sexy_bash_prompt_git_progress_color\]\$(sexy_bash_prompt_get_git_progress)\" && \
+  echo -n \"\[$sexy_bash_prompt_preposition_color\]\")\n\[$sexy_bash_prompt_reset\]\
+\[$sexy_bash_prompt_symbol_color\]$sexy_bash_prompt_symbol \[$sexy_bash_prompt_reset\]"
