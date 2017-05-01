@@ -31,6 +31,6 @@
 [submodule "rbenv-update"]
 	path = link/.rbenv/plugins/rbenv-update
 	url = git://github.com/rkh/rbenv-update.git
-[submodule "vendor/pyenv"]
+[submodule "pyenv"]
 	path = vendor/pyenv
 	url = https://github.com/pyenv/pyenv.git
