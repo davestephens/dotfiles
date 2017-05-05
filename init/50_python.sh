@@ -2,3 +2,15 @@
 source $DOTFILES/source/50_python.sh
 
 # install python here
+if [[ "$(type -P pyenv)" ]]; then
+  versions=(2.7.13 3.6.1)
+
+  pythons=($(setdiff "${versions[*]}" "$(pyenv whence python)"))
+  if (( ${#pythons[@]} > 0 )); then
+    e_header "Installing Python versions: ${pythons[*]}"
+    for r in "${pythons[@]}"; do
+      pyenv install "$r"
+      [[ "$r" == "${versions[0]}" ]] && pyenv global "$r"
+    done
+  fi
+fi
