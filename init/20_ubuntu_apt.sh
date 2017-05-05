@@ -60,6 +60,13 @@ apt_packages+=(
   libncurses5-dev libffi-dev libgdbm3 libgdbm-dev zlib1g-dev
 )
 
+# https://github.com/pyenv/pyenv/wiki/Common-build-problems
+apt_packages+=(
+  make libbz2-dev libreadline-dev libsqlite3-dev llvm libncursesw5-dev
+  xz-utils tk-dev
+)
+
+
 if is_ubuntu_desktop; then
   # http://www.omgubuntu.co.uk/2016/06/install-latest-arc-gtk-theme-ubuntu-16-04
   apt_keys+=(http://download.opensuse.org/repositories/home:Horst3180/xUbuntu_16.04/Release.key)
