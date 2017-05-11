@@ -119,6 +119,8 @@ if is_ubuntu_desktop; then
     unity-tweak-tool
     vlc
     zenmap
+    frozen-bubble
+    frozen-bubble-data
   )
 
   # Manage online accounts via "gnome-control-center" in launcher
