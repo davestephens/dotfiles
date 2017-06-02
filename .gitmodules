@@ -28,3 +28,6 @@
 [submodule "pyenv"]
 	path = vendor/pyenv
 	url = https://github.com/pyenv/pyenv.git
+[submodule "goenv"]
+	path = vendor/goenv
+	url = https://github.com/syndbg/goenv.git
