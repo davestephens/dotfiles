@@ -112,16 +112,17 @@ if is_ubuntu_desktop; then
   # Misc
   apt_packages+=(adb fastboot)
   apt_packages+=(
+    frozen-bubble
+    frozen-bubble-data
     k4dirstat
+    keepassx
+    meld
     openssh-server
     shutter
     transgui
     unity-tweak-tool
     vlc
     zenmap
-    frozen-bubble
-    frozen-bubble-data
-    keepassx
   )
 
   # Manage online accounts via "gnome-control-center" in launcher
