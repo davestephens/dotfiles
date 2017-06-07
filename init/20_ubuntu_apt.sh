@@ -56,7 +56,7 @@ is_ubuntu_desktop && apt_packages+=(vim-gnome)
 
 # https://github.com/rbenv/ruby-build/wiki
 apt_packages+=(
-  autoconf bison build-essential libssl-dev libyaml-dev libreadline6-dev
+  autoconf bison build-essential libssl-dev libyaml-dev
   libncurses5-dev libffi-dev libgdbm3 libgdbm-dev zlib1g-dev
 )
 
