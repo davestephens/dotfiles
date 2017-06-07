@@ -193,6 +193,9 @@ function other_stuff() {
 
 # Add APT keys.
 keys_cache=$DOTFILES/caches/init/apt_keys
+if [ ! -f "$keys_cache" ]; then
+    touch $keys_cache
+fi
 IFS=$'\n' GLOBIGNORE='*' command eval 'setdiff_cur=($(<$keys_cache))'
 setdiff_new=("${apt_keys[@]}"); setdiff; apt_keys=("${setdiff_out[@]}")
 unset setdiff_new setdiff_cur setdiff_out
@@ -249,7 +252,7 @@ if (( ${#apt_packages[@]} > 0 )); then
   for package in "${apt_packages[@]}"; do
     e_arrow "$package"
     [[ "$(type -t preinstall_$package)" == function ]] && preinstall_$package
-    sudo apt-get -qq install "$package" && \
+    sudo apt-get -q -y install "$package" && \
     [[ "$(type -t postinstall_$package)" == function ]] && postinstall_$package
   done
 fi
