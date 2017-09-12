@@ -1,22 +1,60 @@
-# Lots of junk goes in here.
-/caches/
-/backups/
+# Compiled source #
+###################
+*.class
+*.dll
+*.exe
+*.o
+*.so
 
-# Top secret stuff!
-/link/.ssh/id_*
-/link/.ssh/*.pem
-/link/.ssh/known_hosts*
+# Packages #
+############
+# It's better to unpack these files and commit the raw source because
+# git has its own built in compression methods.
+*.7z
+*.jar
+*.rar
+*.zip
+*.gz
+*.bzip
+*.xz
+*.lzma
 
-# Don't commit Vim plugins, vim-plug will install them.
-/link/.vim/plugged
+#packing-only formats
+*.iso
+*.tar
 
-# Don't commit rbenv temp files.
-/link/.rbenv/shims/
-/link/.rbenv/versions/
-/link/.rbenv/version
+#package management formats
+*.dmg
+*.xpi
+*.gem
+*.egg
+*.deb
+*.rpm
 
-# Don't commit byobu ssh-agent symlink
-/link/.byobu/.ssh-agent
+# Logs and databases #
+######################
+*.log
+*.sqlite
 
-# Ignore any file with LOCAL in the name (good for per-machine vars/functions)
-*LOCAL*
+# OS generated files #
+######################
+.DS_Store
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Windows image file caches
+Thumbs.db 
+
+# Folder config file
+Desktop.ini
+
+# Vim
+.swp
+.swo
+.*.swp
+.*.swo
